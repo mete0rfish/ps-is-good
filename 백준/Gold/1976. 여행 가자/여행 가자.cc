@@ -7,41 +7,51 @@ using namespace std;
 
 int N, M;
 int tmp;
-vector<int> target;
-vector<int> edge[201];
-bool visited[201];
+int p[202];
 
-void dfs(int t) {
-    visited[t] = true;
-    for (int e : edge[t]) {
-        if (!visited[e]) {
-            dfs(e);
-        }
-    }
+int find(int x) {
+    if (p[x] == x)   return x;
+    return p[x] = find(p[x]);
+}
+
+void union_nodes(int x, int y) {
+    x = find(x);
+    y = find(y);
+    if (x < y) p[y] = x;
+    else p[x] = y;
 }
 
 int main() {
+    ios_base::sync_with_stdio(0);
+    cin.tie(0); cout.tie(0);
+
     cin >> N >> M;
+
+    for (int i = 1; i <= N; i++) {
+        p[i] = i;
+    }
+
     for (int i = 1; i <= N; i++) {
         for (int j = 1; j <= N; j++) {
             cin >> tmp;
             if (tmp == 1) {
-                edge[i].push_back(j);
+                union_nodes(i, j);
             }
         }
     }
 
+    int top;
     for (int i = 0; i < M; i++) {
-        cin >> tmp;
-        target.push_back(tmp);
-    }
-
-    dfs(target[0]);
-
-    for (int i = 0; i < M; i++) {
-        if (!visited[target[i]]) {
-            cout << "NO";
-            return 0;
+        int x;
+        cin >> x;
+        if (i == 0) {
+            top = find(x);
+        }
+        else {
+            if (find(top) != find(x)) {
+                cout << "NO";
+                return 0;
+            }
         }
     }
     cout << "YES";
