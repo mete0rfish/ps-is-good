@@ -4,66 +4,67 @@
 
 using namespace std;
 
-vector<int> answer;
-vector<int> combinations;
-int max_wins = -1;
+int N;
+int res_win = -1;
+vector<int> res;
+vector<int> a_dice;
 
-void calc(int cnt, int sum, const vector<int>& dice_indices, const vector<vector<int>>& dice, vector<int>& sums) {
-    if(cnt == dice_indices.size()) {
-        sums.push_back(sum);
+void calc(int cnt, int sum, const vector<int>& t_dice, const vector<vector<int>>& dice, vector<int>& t_sum) {
+    if(cnt == t_dice.size()) {
+        t_sum.push_back(sum);
         return;
     }
     
-    int cur_idx = dice_indices[cnt];
-    for(int d : dice[cur_idx]) {
-        calc(cnt+1, sum+d, dice_indices, dice, sums);
+    int cur_idx = t_dice[cnt]; // 현재 돌릴 주사위 번호
+    for(int i=0;i<dice[cur_idx].size();i++) {
+        calc(cnt+1, sum+dice[cur_idx][i], t_dice, dice, t_sum);
     }
 }
 
-void generate(int idx, int count, int n, const vector<vector<int>>& dice) {
-    if(count == n/2) {
-        vector<int> sum_a, sum_b;
-        vector<int> b_combinations;
-        vector<bool> isA(n, false);
-        
-        // 1. B 조합 구하기
-        for(int i : combinations) {
-            isA[i] = true;
+void choose_dice(int cnt, int idx, const vector<vector<int>> dice) {
+    if(cnt == N/2) {
+        vector<int> b_dice;
+        vector<int> a_sum, b_sum;
+        vector<bool> isUsed(N, false);
+        for(int i=0;i<a_dice.size();i++) {
+            isUsed[a_dice[i]] = true;
         }
-        for(int i=0;i<n;i++) {
-            if(!isA[i]) b_combinations.push_back(i);
-        }
-        
-        calc(0, 0, combinations, dice, sum_a);
-        calc(0, 0, b_combinations, dice, sum_b);
-        
-        sort(sum_b.begin(), sum_b.end());
-        
-        int wins = 0;
-        for(int a : sum_a) {
-            auto it = lower_bound(sum_b.begin(), sum_b.end(), a);
-            wins += (it - sum_b.begin());
-        }
-        
-        if(max_wins < wins) {
-            max_wins = wins;
-            answer = combinations;
-            for(int i=0;i<combinations.size();i++) {
-                answer[i]++;
+        for(int i=0;i<N;i++) {
+            if(!isUsed[i]){
+                b_dice.push_back(i);
             }
         }
-        return;
+        
+        calc(0, 0, a_dice, dice, a_sum);
+        calc(0, 0, b_dice, dice, b_sum);
+        
+        sort(b_sum.begin(), b_sum.end());
+        
+        int win = 0;
+        for(int i=0;i<a_sum.size();i++) {
+            auto it = lower_bound(b_sum.begin(), b_sum.end(), a_sum[i]);
+            win += it - b_sum.begin();
+        }
+        
+        if(res_win < win) {
+            res_win = win;
+            res = a_dice;
+        }
     }
     
-    for(int i=idx;i<n;i++) {
-        combinations.push_back(i);
-        generate(i+1, count+1, n, dice);
-        combinations.pop_back();
-    }
+    for(int i=idx;i<N;i++) {
+        a_dice.push_back(i);
+        choose_dice(cnt+1, i+1, dice);
+        a_dice.pop_back();
+    }   
 }
 
 vector<int> solution(vector<vector<int>> dice) {
-    generate(0, 0, dice.size(), dice);
+    N = dice.size();
+    choose_dice(0, 0, dice);
     
-    return answer;
+    for(int i=0;i<res.size();i++) {
+        res[i]++;
+    }
+    return res;
 }
