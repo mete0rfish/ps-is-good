@@ -1,122 +1,84 @@
 #include <iostream>
 #include <vector>
-#include <algorithm>
 #include <queue>
-#include <tuple>
-
-#define MAX 1001
+#include <algorithm>
 
 using namespace std;
 
-int n, m;
-int map[MAX][MAX];
-int res[2][MAX][MAX];
-bool chk[2][MAX][MAX];
-queue<tuple<int, int, int>> q;
-int xPos[4] = { -1,1,0,0 };
-int yPos[4] = { 0,0,-1, 1 };
+typedef struct {
+    int cnt, x, y;
+}info;
 
-/*
-부순 벽의 수
-최종 길이
-*/
-
-void bfs(int x, int y) {
-	q.push(make_tuple(0, x, y));
-	chk[0][x][y] = true;
-	res[0][x][y] = 1;
-
-	while (!q.empty()) {
-		tuple<int, int,int> curr = q.front();
-		q.pop();
-		
-		int currX = get<1>(curr);
-		int currY = get<2>(curr);
-
-		for (int i = 0; i < 4; i++) {
-			int broken = get<0>(curr);
-			int movedX = currX + xPos[i];
-			int movedY = currY + yPos[i];
-
-			if (movedX < 1 || movedY < 1 || movedX > n || movedY > m) continue;
-
-			// 벽을 이미 부쉈으면 안부수고 패스
-			if (broken && !chk[broken][movedX][movedY]) {
-				// 벽이 아니면 그대로 이동
-				if (map[movedX][movedY] != 1) {
-					chk[broken][movedX][movedY] = true;
-					res[broken][movedX][movedY] = res[broken][currX][currY] + 1;
-					q.push(make_tuple(broken, movedX, movedY));
-				}
-			}
-			// 벽을 안부쉈으면 그대로 패스
-			else if (!broken && !chk[broken][movedX][movedY]) {
-				// 1이면 부수고 이동
-				if (map[movedX][movedY] == 1) {
-					chk[1][movedX][movedY] = true;
-					res[1][movedX][movedY] = res[0][currX][currY] + 1;
-					q.push(make_tuple(1, movedX, movedY));
-				}
-				// 0이면 그냥 이동
-				else {
-					chk[0][movedX][movedY] = true;
-					res[0][movedX][movedY] = res[0][currX][currY] + 1;
-					q.push(make_tuple(0, movedX, movedY));
-				}
-			}
-			
-		}
-	}
-}
+int N, M;
+int arr[1002][1002];
+int dis[2][1002][1002];
+int px[4] = {-1,0,1,0};
+int py[4] = {0,-1,0,1};
 
 int main() {
-	ios::sync_with_stdio(false);
-	cin.tie(0);
-	cout.tie(0);
+    ios::sync_with_stdio(false);
+    cin.tie(NULL);
+    cout.tie(NULL);
+    cin >> N >> M;
+    
+    for(int i=0;i<N;i++) {
+        string str;
+        cin >> str;
+        for(int j=0;j<str.length();j++) {
+            arr[i][j] = (int)(str[j]-'0');
+        }
+    }
 
-	cin >> n >> m;
-	for (int i = 1; i <= n; i++) {
-		string str;
-		cin >> str;
-		for (int j = 1; j <= m; j++) {
-			map[i][j] = (int)(str[j-1]-'0');
-		}
-	}
-	
-	bfs(1, 1);
-	
-	/*cout << "==== res ====" << endl;
-	cout << " 00000 " << endl;
-	for (int i = 1; i <= n; i++) {
-		for (int j = 1; j <= m; j++) {
-			cout << res[0][i][j] << ' ';
-		}
-		cout << endl;
-	}
-	cout <<endl<< " 11111 " << endl;
-	for (int i = 1; i <= n; i++) {
-		for (int j = 1; j <= m; j++) {
-			cout << res[1][i][j] << ' ';
-		}
-		cout << endl;
-	}
-	*/
+    fill(&dis[0][0][0], &dis[1][1000][1000], -1);
+    
+    queue<info> q;
+    q.push({0, 0, 0});
+    dis[0][0][0] = 1;
 
-	/*
-	cout << "==== broken ====" << endl;
-	for (int i = 1; i <= n; i++) {
-		for (int j = 1; j <= m; j++) {
-			cout << broken[i][j] << ' ';
-		}
-		cout << endl;
-	}*/
-	if (res[1][n][m] == 0 && res[0][n][m] == 0)
-		cout << -1;
-	else {
-		if (res[0][n][m] == 0)	cout << res[1][n][m];
-		else if (res[1][n][m] == 0) cout << res[0][n][m];
-		else cout << min(res[0][n][m], res[1][n][m]);
-	}
-		
+    while(!q.empty()) {
+        int x = q.front().x;
+        int y = q.front().y;
+        int cnt = q.front().cnt;
+        q.pop();
+
+        if(x == N-1 && y == M-1) {
+            cout << dis[cnt][x][y];
+            return 0;
+        }
+
+        for(int i=0;i<4;i++) {
+            int nx = px[i] + x;
+            int ny = py[i] + y;
+
+            if(nx < 0 || ny < 0 || nx >= N || ny >= M) continue;
+
+            // 한 번 부신 상태에선 이동 밖에 못함
+            if(cnt == 1) {
+                if(dis[cnt][nx][ny] == -1) {
+                    if(arr[nx][ny] == 0) {
+                        q.push({cnt, nx, ny});
+                        dis[cnt][nx][ny] = dis[cnt][x][y] + 1;
+                    }
+                }
+            }
+            // 부시지 않은 상태에서 벽인 경우 부수고, 아닌 경우 이동
+            else {
+                if(dis[cnt][nx][ny] == -1) {
+                    if(arr[nx][ny] == 1) {
+                        q.push({1, nx, ny});
+                        dis[1][nx][ny] = dis[0][x][y] + 1;
+                    }
+                    else {
+                        q.push({0, nx, ny});
+                        dis[0][nx][ny] = dis[0][x][y] + 1;
+                    }
+                }
+            }
+            
+        }
+    }
+
+    cout << -1;
+    
+    return 0;
 }
-
