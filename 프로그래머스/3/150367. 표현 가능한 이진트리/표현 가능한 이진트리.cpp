@@ -38,7 +38,7 @@ string add_zero(string str) {
     return padding;
 }
 
-bool check_tree(string& str, int start, int end) {
+bool check(string& str, int start, int end) {
     if (start > end) {
         return true;
     }
@@ -57,16 +57,24 @@ bool check_tree(string& str, int start, int end) {
         }
     }
     
-    return check_tree(str, start, idx-1) && check_tree(str, idx+1, end);
+    return check(str, start, idx-1) && check(str, idx+1, end);
 }
 
 vector<int> solution(vector<long long> numbers) {
     vector<int> answer;
-    for(auto num: numbers) {
-        string str = add_zero(to_binary(num));
-        bool res = check_tree(str, 0, str.length()-1);
-        if(res) answer.push_back(1);
-        else answer.push_back(0);
+    
+    for(auto number : numbers) {
+        string binary = to_binary(number);
+        binary = add_zero(binary);
+        bool flag= check(binary,0, binary.length()-1);
+            
+        if(flag) {
+            answer.push_back(1);
+        }
+        else {
+            answer.push_back(0);
+        }
     }
+    
     return answer;
 }

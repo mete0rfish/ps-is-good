@@ -1,10 +1,10 @@
 # [level 3] 표현 가능한 이진트리 - 150367 
 
-[문제 링크](https://school.programmers.co.kr/learn/courses/30/lessons/150367?language=cpp) 
+[문제 링크](https://school.programmers.co.kr/learn/courses/30/lessons/150367) 
 
 ### 성능 요약
 
-메모리: 5.75 MB, 시간: 10.16 ms
+메모리: 5.83 MB, 시간: 7.15 ms
 
 ### 구분
 
@@ -16,7 +16,7 @@
 
 ### 제출 일자
 
-2025년 09월 08일 15:43:58
+2025년 09월 09일 13:09:53
 
 ### 문제 설명
 
