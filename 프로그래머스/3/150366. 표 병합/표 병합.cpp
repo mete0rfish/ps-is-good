@@ -6,124 +6,140 @@
 
 using namespace std;
 
-string arr[51][51];
-pair<int, int> parent[51][51];
+pair<int, int> parents[52][52];
+string arr[52][52];
 
-pair<int, int> finds(int x, int y) {
-    if(parent[x][y] == make_pair(x, y)) return make_pair(x, y);
-    return parent[x][y] = finds(parent[x][y].first, parent[x][y].second);
-}
-
-void merge_child(int pr, int pc, int tr, int tc) {
+void after_unions(int from_r, int from_c, int to_r, int to_c) {
     for(int i=1;i<=50;i++) {
         for(int j=1;j<=50;j++) {
-            if(parent[i][j] == make_pair(pr, pc)) parent[i][j] = make_pair(tr, tc);
+            if(parents[i][j] == make_pair(from_r, from_c)) {
+                parents[i][j] = make_pair(to_r, to_c);
+            }
         }
     }
+}
+
+pair<int, int> finds(int r, int c) {
+    if(parents[r][c] == make_pair(r, c)) return make_pair(r, c);
+    return parents[r][c] = finds(parents[r][c].first, parents[r][c].second);
 }
 
 void unions(int r1, int r2, int c1, int c2) {
     tie(r1, c1) = finds(r1, c1);
     tie(r2, c2) = finds(r2, c2);
     
-    if(r1 == r2 && c1 == c2) return;
-
-    // 둘 다 가지고 있는 경우, a 값 가짐
     if(!arr[r1][c1].empty() && !arr[r2][c2].empty()) {
-        parent[r2][c2] = make_pair(r1, c1);
-        merge_child(r2, c2, r1, c1);
+        parents[r2][c2] = make_pair(r1, c1);
+        after_unions(r2, c2, r1, c1);
     }
-        
-    // a만 가지는 경우,
     else if(!arr[r1][c1].empty()) {
-        parent[r2][c2] = make_pair(r1, c1);
-        merge_child(r2, c2, r1, c1);
+        parents[r2][c2] = make_pair(r1, c1);
+        after_unions(r2, c2, r1, c1);
     }
     else {
-        parent[r1][c1] = make_pair(r2, c2);
-        merge_child(r1, c1, r2, c2);
+        parents[r1][c1] = make_pair(r2, c2);
+        after_unions(r1, c1, r2, c2);
     }
 }
 
-void update(int r, int c, string value) {
-    tie(r,c) = finds(r, c);
-    arr[r][c] = value;
+void updates(int R, int C, string VALUE) {
+    tie(R, C) = finds(R, C);
+    arr[R][C] = VALUE;
 }
 
-void unmerge(int r, int c) {
-    int orir = r;
-    int oric = c;
-    
-    tie(r, c) = finds(r, c);
-    string value = arr[r][c];
+void updates_with_value(string VALUE1, string VALUE2) {
+    for(int i=1;i<=50;i++) {
+        for(int j=1;j<=50;j++) {
+            int pi, pj;
+            tie(pi, pj) = finds(i, j);
+            if(arr[pi][pj] == VALUE1) updates(i, j, VALUE2);
+        }
+    }
+}
+
+void unmerges(int R, int C) {
+    int ori_R = R; int ori_C = C;
+    tie(R, C) = finds(R, C);
+    string VALUE = arr[R][C];
     
     for(int i=1;i<=50;i++) {
         for(int j=1;j<=50;j++) {
-            if(parent[i][j] == make_pair(r, c)) {
-                parent[i][j] = make_pair(i, j);
+            if(parents[i][j] == make_pair(R, C)) {
+                parents[i][j] = make_pair(i, j);
                 arr[i][j].clear();
             }
         }
     }
     
-    arr[orir][oric] = value;
+    arr[ori_R][ori_C] = VALUE;
+}
+
+void print(vector<string>& answer, int R, int C) {
+    tie(R, C) = finds(R, C);
+    
+    if(arr[R][C] == "") {
+        answer.push_back("EMPTY");
+    }
+    else {
+        answer.push_back(arr[R][C]);
+    }
+}
+
+void slices(vector<string>& params, string command) {
+    stringstream ss(command);
+    string str;
+    while(ss >> str) {
+        params.push_back(str);
+    }
+}
+
+void init() {
+    for (int i = 1; i <= 50; i++) {
+        for (int j = 1; j <= 50; j++) {
+            parents[i][j] = make_pair(i, j);
+        }
+    }
 }
 
 vector<string> solution(vector<string> commands) {
     vector<string> answer;
-    for (int i = 1; i <= 50; i++) {
-        for (int j = 1; j <= 50; j++) {
-            parent[i][j] = make_pair(i, j);
-        }
-    }
-    
-    for(string command : commands) {
-        stringstream ss(command);
-        vector<string> tmp;
-        string str;
-        while(ss >> str) tmp.push_back(str);
+    init();
+    for(auto command : commands) {
+        vector<string> params;
+        slices(params, command);
         
-        if(tmp[0] == "UPDATE") {
-            if(tmp.size() == 4) { // r c value
-                int r = stoi(tmp[1]);
-                int c = stoi(tmp[2]);
-                string value = tmp[3];
+        if(params[0] == "UPDATE") {
+            if(params.size() == 4) {
+                int R = stoi(params[1]);
+                int C = stoi(params[2]);
+                string VALUE = params[3];
                 
-                update(r, c, value);
-            }
-            else { // value1 value2
-                string value1 = tmp[1]; string value2 = tmp[2];
-                for(int i=1; i<=50; i++) {
-                    for(int j=1; j<=50; j++) {
-                        pair<int, int> root = finds(i, j);
-                        if(arr[root.first][root.second] == value1) {
-                            arr[root.first][root.second] = value2;
-                        }
-                    }
-                }
+                updates(R, C, VALUE);
+            }   
+            else {
+                string VALUE1 = params[1];
+                string VALUE2 = params[2];
+                
+                updates_with_value(VALUE1, VALUE2);
             }
         }
-        else if(tmp[0] == "MERGE") {
-            int r1 = stoi(tmp[1]); int c1 = stoi(tmp[2]);
-            int r2 = stoi(tmp[3]); int c2 = stoi(tmp[4]);
-            unions(r1, r2, c1, c2);
-        }
-        else if(tmp[0] == "UNMERGE") {
-            int r = stoi(tmp[1]);
-            int c = stoi(tmp[2]);
+        else if(params[0] == "MERGE") {
+            int R1 = stoi(params[1]); int C1 = stoi(params[2]);
+            int R2 = stoi(params[3]); int C2 = stoi(params[4]);
             
-            unmerge(r, c);
+            unions(R1, R2, C1, C2);
         }
-        else if(tmp[0] == "PRINT") {
-            int r = stoi(tmp[1]);
-            int c = stoi(tmp[2]);
+        else if(params[0] == "UNMERGE") {
+            int R = stoi(params[1]);
+            int C = stoi(params[2]);
             
-            tie(r, c) = finds(r, c);
-            if (arr[r][c].empty()) {
-                answer.push_back("EMPTY");
-            } else {
-                answer.push_back(arr[r][c]);
-            }
+            unmerges(R, C);
+        }
+        else if(params[0] == "PRINT") {
+            int R = stoi(params[1]);
+            int C = stoi(params[2]);
+            
+            print(answer, R, C);
         }
     }
     
