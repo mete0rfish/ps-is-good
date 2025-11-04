@@ -13,30 +13,31 @@ using namespace std;
 */
 int N;
 string str;
-queue<string> q;
-map<string, bool> m;
+int res;
+vector<int> v;
+map<string, int> m;
 
 int main() {
 	cin >> N;
 	for(int i=0;i<N;i++) {
 		cin >> str;
-		q.push(str);
-		m[str] = false;
+		m[str] = i;
 	}
 
 	int res = 0;
 	for(int i=0;i<N;i++) {
 		cin >> str;
-		while(!q.empty() && m[q.front()]) q.pop();
-		
-		if(!q.empty()) {
-			if (q.front() != str) {
-				m[str] = true;
-				res++;
-			} else {
-				q.pop();
-			}
+		v.push_back(m[str]);
+	}
+
+	for(int i=0;i<N-1;i++) {
+		for(int j=i+1;j<N;j++) {
+			if(v[i] > v[j]) {
+                res++;
+                break;
+            }
 		}
 	}
+	
 	cout << res;
 }
