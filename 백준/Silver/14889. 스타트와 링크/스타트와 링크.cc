@@ -1,56 +1,49 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
-#include <cstring>
-#include <cmath>
+#include <queue>
+#include <map>
+#include <cstdlib>
 
 using namespace std;
 
 int N;
-int arr[20][20];
-bool chk[20]; //chk를 이용하여 1팀이면 true, 2팀이면 false
-int mini = 9999;
+int arr[21][21];
+bool vst[21];
+int res = 1e9;
 
-void dfs(int cnt, int pos){  //cnt = i
-  
-  if(cnt==N/2){
-    int a_team=0, b_team=0; //총 점수
-    
-    for(int i=0;i<N;i++){
-      for(int j=0;j<N;j++){
-        if(chk[i]==true && chk[j]==true)
-          a_team += arr[i][j];
-        if(chk[i]==false && chk[j]==false)
-          b_team += arr[i][j];
-      }
-    }
-    //cout << "a_team : " << a_team << " ,b_team : " << b_team << endl; 
+void dfs(int cnt, int idx) {
+	if(N == cnt*2) {
+		int a=0; int b=0;
+		for(int i=0;i<N;i++) {
+			for(int j=0;j<N;j++) {
+				if(vst[i] && vst[j]) {
+					a+=arr[i][j];
+				}
+				else if(!vst[i] && !vst[j]) {
+					b+=arr[i][j];
+				}
+			}
+		}
 
-    if(abs(a_team - b_team) < mini){
-      mini = abs(a_team - b_team);
-      return;
-    }
-  }
-
-  
-  for(int i=pos;i<N;i++){
-    chk[i] = true;
-    dfs(cnt+1, i+1);
-    chk[i] = false;
-  }
-  
+		res = min(res, abs(a-b));
+		return;
+	}
+	
+	for(int i=idx;i<N;i++) {
+		vst[i] = true;
+		dfs(cnt+1, i+1);
+		vst[i] = false;
+	}
 }
 
 int main() {
-  cin >> N;
-  for(int i=0;i<N;i++){
-    for(int j=0;j<N;j++){
-      cin >> arr[i][j];
-    }
-  }
-  dfs(0,0);
-
-  cout << mini;
-  
-  return 0;
+	cin >> N;
+	for(int i=0;i<N;i++) {
+		for(int j=0;j<N;j++) {
+			cin >> arr[i][j];
+		}
+	}
+	dfs(0, 0);
+	cout << res;
 }
