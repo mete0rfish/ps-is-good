@@ -9,48 +9,26 @@ using namespace std;
 
 int N, K;
 
-vector<string> words;
+vector<int> word_masks;
 bool vst[26];
 int res = 0;
 
-void isBigger(int A) {
-    res = (A > res ? A : res);
-}
-
-int read() {
-    int cnt = 0;
-    for(int i=0;i<N;i++) {
-        bool isRead = true;
-        string word = words[i];
-
-        for (int j=0;j<word.length();j++) {
-            if (!vst[word[j] - 'a']) {
-                isRead = false;
-                break;
+void solution(int idx, int cnt, int mask) {
+    if (cnt == K) {
+        int cnt = 0;
+        for (auto word : word_masks) {
+            if ((word & mask) == word) {
+                cnt++;
             }
         }
-
-        if (isRead) {
-            cnt++;
-        }
-    }
-
-    return cnt;
-}
-
-void choose(int idx, int cnt) {
-    if (cnt == K) {
-        int readable = read();
-        isBigger(readable);
+        res = max(res, cnt);
         return;
     }
 
-    for (int i=idx;i<26;i++) {
-        if (vst[i]) continue;
+    for (int i=idx; i<26; i++) {
+        if ((mask & (1 << i)) != 0) continue;
 
-        vst[i] = true;
-        choose(i+1, cnt+1);
-        vst[i] = false;
+        solution(i+1, cnt+1, mask | (1 << i));
     }
 }
 
@@ -63,19 +41,31 @@ int main() {
         return 0;
     }
 
+    if (K == 26) {
+        cout << N;
+        return 0;
+    }
+
     string str;
     for(int i=0;i<N;i++) {
         cin >> str;
-        words.push_back(str);
+
+        int mask = 0;
+        for (char c: str) {
+            mask = mask | (1<< (c-'a'));
+        }
+        word_masks.push_back(mask);
     }
 
-    vst['a' - 'a'] = true;
-    vst['n' - 'a'] = true;
-    vst['t' - 'a'] = true;
-    vst['i' - 'a'] = true;
-    vst['c' - 'a'] = true;
+    int default_mask = 0;
 
-    choose(0, 5);
+    default_mask |= (1 << ('a' - 'a'));
+    default_mask |= (1 << ('n' - 'a'));
+    default_mask |= (1 << ('t' - 'a'));
+    default_mask |= (1 << ('i' - 'a'));
+    default_mask |= (1 << ('c' - 'a'));
+
+    solution(0, 5, default_mask);
 
     cout << res;
 
