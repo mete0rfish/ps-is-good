@@ -5,31 +5,26 @@
 using namespace std;
 
 int N;
-int arr[1001];
-vector<pair<int, int>> v;
-
-bool cmp (pair<int, int> a, pair<int, int> b) {
-    if (a.first != b.first) return a.first < b.first;
-    return a.second < b.second;
-}
 
 int main() {
     cin >> N;
     
+    vector<pair<int, int>> v(N);
+    
     for (int i=0;i<N;i++) {
-        int a;
-        cin >> a;
-        v.push_back({a, i});
+        cin >> v[i].first;
+        v[i].second = i;
     }
 
-    sort(v.begin(), v.end(), cmp);
+    sort(v.begin(), v.end());
+
+    vector<int> P(N);
+    for (int i=0;i<N;i++) {
+        P[v[i].second] = i;
+    }
 
     for (int i=0;i<N;i++) {
-        for (int j=0;j<N;j++) {
-            if (v[j].second == i) {
-                cout << j << " ";
-            }
-        }
+        cout << P[i] << " ";
     }
     
     return 0;
