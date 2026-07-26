@@ -1,9 +1,18 @@
-아는 건 실수없이 풀자!
+# ps-is-good
 
-**2024.11.02 15:55 400 Solved**
+Archive of accepted coding challenge solutions, synced by [AlgorithmHub](https://github.com/dev-minsoo/AlgorithmHub).
 
-**2025.07.24 16:22 500 Solved**
+## Summary
 
-<br/>
+| Platform | Solved |
+| --- | ---: |
+| LeetCode | 1 |
+| 프로그래머스 | 0 |
+| HackerRank | 0 |
+| Total | 1 |
 
-[![Solved.ac프로필](http://mazassumnida.wtf/api/v2/generate_badge?boj=sungwon326)](https://solved.ac/sungwon326)
+## Platforms
+
+- [LeetCode](./Leetcode)
+- [프로그래머스](./%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%98%EB%A8%B8%EC%8A%A4)
+- [HackerRank](./HackerRank)
